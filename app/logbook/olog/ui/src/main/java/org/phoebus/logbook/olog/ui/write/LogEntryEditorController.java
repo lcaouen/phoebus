@@ -554,7 +554,7 @@ public class LogEntryEditorController {
 
         setupTextAreaContextMenu();
 
-        doStompStuff();
+        //doStompStuff();
 
     }
 
@@ -1083,7 +1083,7 @@ public class LogEntryEditorController {
         WebSocketClient webSocketClient = new StandardWebSocketClient();
         WebSocketStompClient stompClient = new WebSocketStompClient(webSocketClient);
         stompClient.setMessageConverter(new StringMessageConverter());
-        String url = "ws://localhost:8080/websocket";
+        String url = "ws://localhost:8080/web-socket";
         StompSessionHandler sessionHandler = new MyStompSessionHandler();
         try {
             StompSession stompSession = stompClient.connect(url, sessionHandler).get();
