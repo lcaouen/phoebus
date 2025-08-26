@@ -41,7 +41,12 @@ import javafx.scene.text.FontWeight;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
+<<<<<<< HEAD
 import org.phoebus.applications.logbook.authentication.OlogAuthenticationScope;
+=======
+import org.phoebus.core.websocket.WebSocketMessageHandler;
+import org.phoebus.core.websocket.springframework.WebSocketClientService;
+>>>>>>> e2794d457 (Olog web socket: use core-websocket)
 import org.phoebus.framework.jobs.JobManager;
 import org.phoebus.logbook.LogClient;
 import org.phoebus.logbook.LogEntry;
@@ -55,7 +60,6 @@ import org.phoebus.logbook.olog.ui.spi.Decoration;
 import org.phoebus.logbook.olog.ui.websocket.MessageType;
 import org.phoebus.logbook.olog.ui.websocket.WebSocketMessage;
 import org.phoebus.logbook.olog.ui.write.EditMode;
-import org.phoebus.logbook.olog.ui.write.LogEntryEditorController;
 import org.phoebus.logbook.olog.ui.write.LogEntryEditorStage;
 import org.phoebus.olog.es.api.Preferences;
 import org.phoebus.olog.es.api.model.LogGroupProperty;
@@ -65,27 +69,13 @@ import org.phoebus.security.tokens.AuthenticationScope;
 import org.phoebus.security.tokens.ScopedAuthenticationToken;
 import org.phoebus.ui.dialog.DialogHelper;
 import org.phoebus.ui.dialog.ExceptionDetailsErrorDialog;
-import org.springframework.lang.Nullable;
-import org.springframework.messaging.converter.StringMessageConverter;
-import org.springframework.messaging.simp.stomp.StompCommand;
-import org.springframework.messaging.simp.stomp.StompFrameHandler;
-import org.springframework.messaging.simp.stomp.StompHeaders;
-import org.springframework.messaging.simp.stomp.StompSession;
-import org.springframework.messaging.simp.stomp.StompSessionHandler;
-import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.web.socket.client.WebSocketClient;
-import org.springframework.web.socket.client.standard.StandardWebSocketClient;
-import org.springframework.web.socket.messaging.WebSocketStompClient;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -97,7 +87,7 @@ import java.util.stream.Collectors;
  *
  * @author Kunal Shroff
  */
-public class LogEntryTableViewController extends LogbookSearchController {
+public class LogEntryTableViewController extends LogbookSearchController implements WebSocketMessageHandler {
 
     @FXML
     @SuppressWarnings("unused")
@@ -141,6 +131,11 @@ public class LogEntryTableViewController extends LogbookSearchController {
 
     private ObjectMapper objectMapper = new ObjectMapper();
 
+    @FXML
+    private Label autoUpdateStatusLabel;
+
+    private SimpleBooleanProperty webSocketConnected = new SimpleBooleanProperty();
+
     /**
      * List of selected log entries
      */
@@ -149,7 +144,9 @@ public class LogEntryTableViewController extends LogbookSearchController {
 
     private final SimpleBooleanProperty showDetails = new SimpleBooleanProperty();
 
-    private final SimpleBooleanProperty advancedSearchVisibile = new SimpleBooleanProperty(false);
+    private final SimpleBooleanProperty advancedSearchVisible = new SimpleBooleanProperty(false);
+
+    private WebSocketClientService webSocketClientService;
 
     /**
      * Constructor.
@@ -342,9 +339,20 @@ public class LogEntryTableViewController extends LogbookSearchController {
         openAdvancedSearchLabel.setOnMouseClicked(e -> resize());
 
         openAdvancedSearchLabel.textProperty()
-                .bind(Bindings.createStringBinding(() -> advancedSearchVisibile.get() ?
+                .bind(Bindings.createStringBinding(() -> advancedSearchVisible.get() ?
                                 Messages.AdvancedSearchHide : Messages.AdvancedSearchOpen,
-                        advancedSearchVisibile));
+                        advancedSearchVisible));
+
+        webSocketConnected.addListener((obs, o, n) -> {
+            if(n){
+                autoUpdateStatusLabel.setStyle("-fx-text-fill: black;");
+                autoUpdateStatusLabel.setText(Messages.AutoRefreshOn);
+            }
+            else{
+                autoUpdateStatusLabel.setStyle("-fx-text-fill: red;");
+                autoUpdateStatusLabel.setText(Messages.AutoRefreshOff);
+            }
+        });
 
         connectWebSocket();
 
@@ -360,13 +368,13 @@ public class LogEntryTableViewController extends LogbookSearchController {
         if (!moving.compareAndExchangeAcquire(false, true)) {
             Duration cycleDuration = Duration.millis(400);
             Timeline timeline;
-            if (advancedSearchVisibile.get()) {
+            if (advancedSearchVisible.get()) {
                 query.disableProperty().set(false);
                 KeyValue kv = new KeyValue(advancedSearchViewController.getPane().minWidthProperty(), 0);
                 KeyValue kv2 = new KeyValue(advancedSearchViewController.getPane().maxWidthProperty(), 0);
                 timeline = new Timeline(new KeyFrame(cycleDuration, kv, kv2));
                 timeline.setOnFinished(event -> {
-                    advancedSearchVisibile.set(false);
+                    advancedSearchVisible.set(false);
                     moving.set(false);
                     search();
                 });
@@ -377,7 +385,7 @@ public class LogEntryTableViewController extends LogbookSearchController {
                 KeyValue kv2 = new KeyValue(advancedSearchViewController.getPane().prefWidthProperty(), width);
                 timeline = new Timeline(new KeyFrame(cycleDuration, kv, kv2));
                 timeline.setOnFinished(event -> {
-                    advancedSearchVisibile.set(true);
+                    advancedSearchVisible.set(true);
                     moving.set(false);
                     query.disableProperty().set(true);
                 });
@@ -524,7 +532,7 @@ public class LogEntryTableViewController extends LogbookSearchController {
             }
         });
     }
-
+q
     @FXML
     @SuppressWarnings("unused")
     public void goToFirstPage() {
@@ -637,6 +645,10 @@ public class LogEntryTableViewController extends LogbookSearchController {
         setLogEntry(logEntry);
     }
 
+    private void logEntryChanged(String logEntryId){
+        search();
+    }
+
     protected LogEntry getLogEntry() {
         return logEntryDisplayController.getLogEntry();
     }
@@ -665,78 +677,38 @@ public class LogEntryTableViewController extends LogbookSearchController {
     }
 
     private void connectWebSocket(){
-        JobManager.schedule("Connect to web socket", monitor -> {
-            WebSocketClient webSocketClient = new StandardWebSocketClient();
-            WebSocketStompClient stompClient = new WebSocketStompClient(webSocketClient);
-            stompClient.setMessageConverter(new StringMessageConverter());
-            ThreadPoolTaskScheduler threadPoolTaskScheduler = new ThreadPoolTaskScheduler();
-            threadPoolTaskScheduler.initialize();
-            stompClient.setTaskScheduler(threadPoolTaskScheduler);
-            stompClient.setDefaultHeartbeat(new long[]{10000, 10000});
-            String baseUrl = Preferences.olog_url;
-            URI uri = URI.create(baseUrl);
-            String scheme = uri.getScheme();
-            String host = uri.getHost();
-            int port = uri.getPort();
-            String path = uri.getPath();
-            if(path.endsWith("/")){
-                path = path.substring(0, path.length() - 1);
-            }
-            String webSocketScheme = scheme.toLowerCase().startsWith("https") ? "wss" : "ws";
-            String webSocketUrl = webSocketScheme + "://" + host + (port > -1 ? (":" + port) : "") + "/web-socket";
-            StompSessionHandler sessionHandler = new LogEntryTableViewController.MyStompSessionHandler();
-            try {
-                stompSession = stompClient.connect(webSocketUrl, sessionHandler).get();
-                stompSession.subscribe(path + "/web-socket/messages", new StompFrameHandler() {
-                    @Override
-                    public Type getPayloadType(StompHeaders headers) {
-                        return String.class;
-                    }
+        String baseUrl = Preferences.olog_url;
+        URI uri = URI.create(baseUrl);
+        String scheme = uri.getScheme();
+        String host = uri.getHost();
+        int port = uri.getPort();
+        String path = uri.getPath();
+        if(path.endsWith("/")){
+            path = path.substring(0, path.length() - 1);
+        }
+        String webSocketScheme = scheme.toLowerCase().startsWith("https") ? "wss" : "ws";
+        String webSocketUrl = webSocketScheme + "://" + host + (port > -1 ? (":" + port) : "") + path;
 
-                    @Override
-                    public void handleFrame(StompHeaders headers, Object payload) {
-                        logger.log(Level.INFO, "Handling subscription frame: " + payload);
-                        try {
-                            WebSocketMessage webSocketMessage = objectMapper.readValue(payload.toString(), WebSocketMessage.class);
-                            if(webSocketMessage.messageType().equals(MessageType.NEW_LOG_ENTRY)){
-                                search();
-                            }
-                        } catch (JsonProcessingException e) {
-                            logger.log(Level.WARNING, "Unable to deserialize payload " + payload.toString(), e);
-                        }
-                    }
-                });
-                //stompSession.send(path + "/web-socket/echo", "Hello World");
-            } catch (Exception e) {
-                logger.log(Level.WARNING, "Web socket connection attempt failed", e);
-            }
+        webSocketClientService = new WebSocketClientService(() -> {
+            logger.log(Level.INFO, "Connected to web socket on " + webSocketUrl);
+            webSocketConnected.set(true);
+        }, () -> {
+            logger.log(Level.INFO, "Disconnected from web socket on " + webSocketUrl);
+            webSocketConnected.set(false);
         });
+        webSocketClientService.addWebSocketMessageHandler(this);
+        webSocketClientService.connect(webSocketUrl);
     }
 
-    private static class MyStompSessionHandler extends StompSessionHandlerAdapter {
-
-
-        @Override
-        public void handleFrame(StompHeaders headers, @Nullable Object payload) {
-            if(payload != null){
-                logger.log(Level.INFO, "WebSocket frame received: " + payload);
+    @Override
+    public void handleWebSocketMessage(String message){
+        try {
+            WebSocketMessage webSocketMessage = objectMapper.readValue(message, WebSocketMessage.class);
+            if(webSocketMessage.messageType().equals(MessageType.NEW_LOG_ENTRY)){
+                search();
             }
-        }
-
-        @Override
-        public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
-            logger.log(Level.INFO, "Connected to web socket");
-        }
-
-        @Override
-        public void handleException(StompSession session, @Nullable StompCommand command,
-                                    StompHeaders headers, byte[] payload, Throwable exception) {
-            logger.log(Level.WARNING, "Exception encountered", exception);
-        }
-
-        @Override
-        public void handleTransportError(StompSession session, Throwable exception) {
-            logger.log(Level.WARNING, "Handling web socket transport error: " + exception.getMessage(), exception);
+        } catch (JsonProcessingException e) {
+            logger.log(Level.WARNING, "Unable to deserialize message \"" + message + "\"");
         }
     }
 }
