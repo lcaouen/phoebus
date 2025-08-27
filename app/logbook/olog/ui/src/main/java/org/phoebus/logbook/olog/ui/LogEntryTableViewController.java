@@ -1,7 +1,5 @@
 package org.phoebus.logbook.olog.ui;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -45,8 +43,11 @@ import javafx.util.StringConverter;
 import org.phoebus.applications.logbook.authentication.OlogAuthenticationScope;
 =======
 import org.phoebus.core.websocket.WebSocketMessageHandler;
+<<<<<<< HEAD
 import org.phoebus.core.websocket.springframework.WebSocketClientService;
 >>>>>>> e2794d457 (Olog web socket: use core-websocket)
+=======
+>>>>>>> 5069f29fa (Refactoring to avoid code duplication)
 import org.phoebus.framework.jobs.JobManager;
 import org.phoebus.logbook.LogClient;
 import org.phoebus.logbook.LogEntry;
@@ -57,11 +58,8 @@ import org.phoebus.logbook.SearchResult;
 import org.phoebus.logbook.olog.ui.query.OlogQuery;
 import org.phoebus.logbook.olog.ui.query.OlogQueryManager;
 import org.phoebus.logbook.olog.ui.spi.Decoration;
-import org.phoebus.logbook.olog.ui.websocket.MessageType;
-import org.phoebus.logbook.olog.ui.websocket.WebSocketMessage;
 import org.phoebus.logbook.olog.ui.write.EditMode;
 import org.phoebus.logbook.olog.ui.write.LogEntryEditorStage;
-import org.phoebus.olog.es.api.Preferences;
 import org.phoebus.olog.es.api.model.LogGroupProperty;
 import org.phoebus.olog.es.api.model.OlogLog;
 import org.phoebus.security.store.SecureStore;
@@ -71,7 +69,6 @@ import org.phoebus.ui.dialog.DialogHelper;
 import org.phoebus.ui.dialog.ExceptionDetailsErrorDialog;
 
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -129,13 +126,6 @@ public class LogEntryTableViewController extends LogbookSearchController impleme
     // Model
     private SearchResult searchResult;
 
-    private ObjectMapper objectMapper = new ObjectMapper();
-
-    @FXML
-    private Label autoUpdateStatusLabel;
-
-    private SimpleBooleanProperty webSocketConnected = new SimpleBooleanProperty();
-
     /**
      * List of selected log entries
      */
@@ -177,7 +167,9 @@ public class LogEntryTableViewController extends LogbookSearchController impleme
     protected Optional<LogEntryTable.GoBackAndGoForwardActions> goBackAndGoForwardActions = Optional.empty();
 
     @FXML
+    @Override
     public void initialize() {
+        super.initialize();
 
         logEntryDisplayController.setLogEntryTableViewController(this);
 
@@ -342,19 +334,6 @@ public class LogEntryTableViewController extends LogbookSearchController impleme
                                 Messages.AdvancedSearchHide : Messages.AdvancedSearchOpen,
                         advancedSearchVisible));
 
-        webSocketConnected.addListener((obs, o, n) -> {
-            Platform.runLater(() -> {
-                if(n){
-                    autoUpdateStatusLabel.setStyle("-fx-text-fill: black;");
-                    autoUpdateStatusLabel.setText(Messages.AutoRefreshOn);
-                }
-                else{
-                    autoUpdateStatusLabel.setStyle("-fx-text-fill: red;");
-                    autoUpdateStatusLabel.setText(Messages.AutoRefreshOff);
-                }
-            });
-        });
-
         connectWebSocket();
 
         search();
@@ -400,6 +379,7 @@ public class LogEntryTableViewController extends LogbookSearchController impleme
      * the UI is updated and a periodic search is launched using the same query. If on the other hand
      * the search fails (service off-line or invalid query), a periodic search is NOT launched.
      */
+    @Override
     public void search() {
         // In case the page size text field is empty, or the value is zero, set the page size to the default
         if ("".equals(pageSizeTextField.getText()) || Integer.parseInt(pageSizeTextField.getText()) == 0) {
@@ -424,8 +404,6 @@ public class LogEntryTableViewController extends LogbookSearchController impleme
                 searchResult1 -> {
                     searchInProgress.set(false);
                     setSearchResult(searchResult1);
-                    //logger.log(Level.INFO, "Starting periodic search: " + queryString);
-                    //periodicSearch(params, this::setSearchResult);
                     List<OlogQuery> queries = ologQueryManager.getQueries();
                     Platform.runLater(() -> {
                         ologQueries.setAll(queries);
@@ -646,7 +624,7 @@ public class LogEntryTableViewController extends LogbookSearchController impleme
         setLogEntry(logEntry);
     }
 
-    private void logEntryChanged(String logEntryId){
+    private void logEntryChanged(String logEntryId) {
         search();
     }
 
@@ -675,41 +653,5 @@ public class LogEntryTableViewController extends LogbookSearchController impleme
             return true;
         }
         return false;
-    }
-
-    private void connectWebSocket(){
-        String baseUrl = Preferences.olog_url;
-        URI uri = URI.create(baseUrl);
-        String scheme = uri.getScheme();
-        String host = uri.getHost();
-        int port = uri.getPort();
-        String path = uri.getPath();
-        if(path.endsWith("/")){
-            path = path.substring(0, path.length() - 1);
-        }
-        String webSocketScheme = scheme.toLowerCase().startsWith("https") ? "wss" : "ws";
-        String webSocketUrl = webSocketScheme + "://" + host + (port > -1 ? (":" + port) : "") + path;
-
-        webSocketClientService = new WebSocketClientService(() -> {
-            logger.log(Level.INFO, "Connected to web socket on " + webSocketUrl);
-            webSocketConnected.set(true);
-        }, () -> {
-            logger.log(Level.INFO, "Disconnected from web socket on " + webSocketUrl);
-            webSocketConnected.set(false);
-        });
-        webSocketClientService.addWebSocketMessageHandler(this);
-        webSocketClientService.connect(webSocketUrl);
-    }
-
-    @Override
-    public void handleWebSocketMessage(String message){
-        try {
-            WebSocketMessage webSocketMessage = objectMapper.readValue(message, WebSocketMessage.class);
-            if(webSocketMessage.messageType().equals(MessageType.NEW_LOG_ENTRY)){
-                search();
-            }
-        } catch (JsonProcessingException e) {
-            logger.log(Level.WARNING, "Unable to deserialize message \"" + message + "\"");
-        }
     }
 }
