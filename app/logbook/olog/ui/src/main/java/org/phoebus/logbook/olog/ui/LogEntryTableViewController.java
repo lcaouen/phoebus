@@ -146,7 +146,6 @@ public class LogEntryTableViewController extends LogbookSearchController impleme
 
     private final SimpleBooleanProperty advancedSearchVisible = new SimpleBooleanProperty(false);
 
-    private WebSocketClientService webSocketClientService;
 
     /**
      * Constructor.
@@ -344,14 +343,16 @@ public class LogEntryTableViewController extends LogbookSearchController impleme
                         advancedSearchVisible));
 
         webSocketConnected.addListener((obs, o, n) -> {
-            if(n){
-                autoUpdateStatusLabel.setStyle("-fx-text-fill: black;");
-                autoUpdateStatusLabel.setText(Messages.AutoRefreshOn);
-            }
-            else{
-                autoUpdateStatusLabel.setStyle("-fx-text-fill: red;");
-                autoUpdateStatusLabel.setText(Messages.AutoRefreshOff);
-            }
+            Platform.runLater(() -> {
+                if(n){
+                    autoUpdateStatusLabel.setStyle("-fx-text-fill: black;");
+                    autoUpdateStatusLabel.setText(Messages.AutoRefreshOn);
+                }
+                else{
+                    autoUpdateStatusLabel.setStyle("-fx-text-fill: red;");
+                    autoUpdateStatusLabel.setText(Messages.AutoRefreshOff);
+                }
+            });
         });
 
         connectWebSocket();
@@ -691,10 +692,10 @@ public class LogEntryTableViewController extends LogbookSearchController impleme
 
         webSocketClientService = new WebSocketClientService(() -> {
             logger.log(Level.INFO, "Connected to web socket on " + webSocketUrl);
-            Platform.runLater(() -> webSocketConnected.set(true));
+            webSocketConnected.set(true);
         }, () -> {
             logger.log(Level.INFO, "Disconnected from web socket on " + webSocketUrl);
-            Platform.runLater(() -> webSocketConnected.set(false));
+            webSocketConnected.set(false);
         });
         webSocketClientService.addWebSocketMessageHandler(this);
         webSocketClientService.connect(webSocketUrl);
