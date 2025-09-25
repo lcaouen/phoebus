@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17">
+		<attributes>
+			<attribute name="module" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/5"/>
-	<classpathentry kind="src" output="target/classes" path="src/main/java"/>
-	<classpathentry kind="src" output="target/classes" path="src/main/resources"/>
-	<classpathentry kind="src" output="target/classes" path="src/test/java"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/phoebus-target"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/core-framework"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/core-types"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/core-security"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/core-pv"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/core-vtype"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/core-util"/>
+	<classpathentry kind="src" output="target/classes" path="src/main/java">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="target/classes" path="src/main/resources">
+		<attributes>
+			<attribute name="maven.pomderived" value="true"/>
+			<attribute name="optional" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/java-fx-lib"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/phoebus-lib"/>
 	<classpathentry kind="output" path="target/classes"/>
 </classpath>

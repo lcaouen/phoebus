@@ -113,8 +113,7 @@ public class DockItem extends Tab
      */
     static final AtomicReference<DockItem> dragged_item = new AtomicReference<>();
 
-    static final Border DROP_ZONE_BORDER = new Border(new BorderStroke(Color.GREEN, BorderStrokeStyle.SOLID,
-                                                                       new CornerRadii(5.0), BorderStroke.MEDIUM));
+    static final Border DROP_ZONE_BORDER = new Border(new BorderStroke(Color.GREEN, BorderStrokeStyle.SOLID, new CornerRadii(5.0), BorderStroke.MEDIUM));
 
     /** Drag-and-drop data format
      *
@@ -465,6 +464,7 @@ public class DockItem extends Tab
     /** Highlight while 'drop' is possible */
     private void handleDragEntered(final DragEvent event)
     {
+        System.out.println("Entree DockItem.");
         // Drop not possible into a 'fixed' pane
         if (getDockPane().isFixed())
             return;

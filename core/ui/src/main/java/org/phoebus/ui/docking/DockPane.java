@@ -546,9 +546,38 @@ public class DockPane extends TabPane
     /** Accept dock items */
     private void handleDragOver(final DragEvent event)
     {
-        if (!isFixed()  &&
-            DockItem.dragged_item.get() != null)
+        if (!isFixed() && DockItem.dragged_item.get() != null)
+        {
             event.acceptTransferModes(TransferMode.MOVE);
+        }
+        // This block aims to tell the user if mouse is on an edge of the screen.
+        // (If so, Dropping the item will split the Docker -- see handleDrop().)
+        // TODO: Create visual feedback:
+        //      - either by changing mouse pointer;
+        //      - or by drawing a line or a rectangle or display transparency effects.
+        // TODO: Remove border created in handleDragEntered() when being on an edge.
+        double mouseX = event.getSceneX();
+        double mouseY = event.getSceneY();
+        final float TOLENRANCE = 0.2f;
+        final double SCREEN_WIDTH = getScene().getWidth();
+        final double SCREEN_HEIGHT = getScene().getHeight();
+        if (mouseX / SCREEN_WIDTH < TOLENRANCE)
+        {
+            System.out.println("On edge Left.");
+        }
+        else if (mouseX / SCREEN_WIDTH > 1 - TOLENRANCE)
+        {
+            System.out.println("On edge Right.");
+        }
+        else if (mouseY / SCREEN_HEIGHT < TOLENRANCE)
+        {
+            System.out.println("On edge Top.");
+        }
+        else if (mouseY / SCREEN_HEIGHT > 1 - TOLENRANCE)
+        {
+            System.out.println("On edge Bottom.");
+        }
+        System.out.println(mouseX);
         event.consume();
     }
 
@@ -615,6 +644,30 @@ public class DockPane extends TabPane
             // With tab addition already in the UI thread queue, remove item from old tab
             logger.log(Level.INFO, "Removing " + item + " from " + old_parent);
             old_parent.getTabs().remove(item);
+        }
+        // This block aims to split the Docker if user drops DockItem on edge of DockPane.
+        // TODO: Add tap to created dock and remove it from former dock.
+        // TODO: Prevent splitting dock if dock is already split.
+        double mouseX = event.getSceneX();
+        double mouseY = event.getSceneY();
+        final float TOLENRANCE = 0.2f;
+        final double SCREEN_WIDTH = getScene().getWidth();
+        final double SCREEN_HEIGHT = getScene().getHeight();
+        if (mouseX / SCREEN_WIDTH < TOLENRANCE)
+        {
+            split(true);
+        }
+        else if (mouseX / SCREEN_WIDTH > 1 - TOLENRANCE)
+        {
+            split(true);
+        }
+        else if (mouseY / SCREEN_HEIGHT < TOLENRANCE)
+        {
+            split(false);
+        }
+        else if (mouseY / SCREEN_HEIGHT > 1 - TOLENRANCE)
+        {
+            split(false);
         }
         event.setDropCompleted(true);
         event.consume();
