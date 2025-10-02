@@ -342,6 +342,7 @@ public class LogEntryTableViewController extends LogbookSearchController impleme
 
         determineConnectivity(connectivityMode -> {
             connectivityModeObjectProperty.set(connectivityMode);
+            connectivityCheckerCountDownLatch.countDown();
             switch (connectivityMode){
                 case HTTP_ONLY -> search();
                 case WEB_SOCKETS_SUPPORTED -> connectWebSocket();
