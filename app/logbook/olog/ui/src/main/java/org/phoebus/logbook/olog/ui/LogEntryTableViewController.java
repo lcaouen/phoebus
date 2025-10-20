@@ -25,6 +25,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.Pagination;
 import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.SelectionMode;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -68,6 +69,7 @@ import org.phoebus.security.store.SecureStore;
 import org.phoebus.security.tokens.AuthenticationScope;
 import org.phoebus.security.tokens.ScopedAuthenticationToken;
 import org.phoebus.ui.dialog.DialogHelper;
+import org.phoebus.ui.dialog.ExceptionDetailsErrorDialog;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -95,6 +97,10 @@ public class LogEntryTableViewController extends LogbookSearchController impleme
     @FXML
     @SuppressWarnings("unused")
     private GridPane viewSearchPane;
+
+    @SuppressWarnings("unused")
+    @FXML
+    private SplitPane splitPane;
 
     // elements related to the table view of the log entries
     @FXML
@@ -428,6 +434,7 @@ public class LogEntryTableViewController extends LogbookSearchController impleme
                 },
                 (msg, ex) -> {
                     searchInProgress.set(false);
+                    ExceptionDetailsErrorDialog.openError(splitPane, Messages.SearchFailed, "", ex);
                 });
     }
 
