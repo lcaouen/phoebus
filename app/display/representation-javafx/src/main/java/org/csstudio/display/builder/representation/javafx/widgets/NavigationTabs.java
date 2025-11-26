@@ -276,7 +276,6 @@ public class NavigationTabs extends BorderPane
         
 		for (int i = 0; i < tab_names.size(); ++i) {
 			tmpColor = deselected;
-			
 			final ToggleButton button = new ToggleButton(tab_names.get(i));
 			// Buttons without text vanish, creating a gap in the tab lineup.
 			if (button.getText().isEmpty())
@@ -315,14 +314,12 @@ public class NavigationTabs extends BorderPane
     {
         final ObservableList<Node> siblings = buttons.getChildren();
         int i = 0;
-        Color tmpSelectedColor = selected;
-        Color tmpDeselectedColor = deselected;
-        WidgetColor tmpWidgetColor= null;
+        Color tmpColor = deselected;
+        WidgetColor tmpWidgetColor = null;
         ToggleButton button;
         for (Node sibling : siblings)
         {
-        	tmpSelectedColor = selected;
-        	tmpDeselectedColor = deselected;
+        	tmpColor = deselected;
         	button = (ToggleButton) sibling;
             if (button == pressed)
             {
@@ -335,9 +332,9 @@ public class NavigationTabs extends BorderPane
                 // Highlight active tab by setting it to the 'selected' color
                 if(i < tab_selected_colors.size()) {
                 	tmpWidgetColor = tab_selected_colors.get(i);
-                	tmpSelectedColor = JFXUtil.convert(tmpWidgetColor);
+                	tmpColor = JFXUtil.convert(tmpWidgetColor);
                 }
-                pressed.setStyle("-fx-color: " + JFXUtil.webRGB(tmpSelectedColor));
+                pressed.setStyle("-fx-color: " + JFXUtil.webRGB(tmpColor));
                 selectIndex = i;
             }
             else if (button.isSelected())
@@ -346,9 +343,9 @@ public class NavigationTabs extends BorderPane
                 button.setSelected(false);
                 if(i < tab_deselected_colors.size()) {
                 	tmpWidgetColor = tab_deselected_colors.get(i);
-                	tmpDeselectedColor = JFXUtil.convert(tmpWidgetColor);
+                	tmpColor = JFXUtil.convert(tmpWidgetColor);
                 }
-                button.setStyle("-fx-color: " + JFXUtil.webRGB(tmpDeselectedColor));
+                button.setStyle("-fx-color: " + JFXUtil.webRGB(tmpColor));
             }
             ++i;
         }
