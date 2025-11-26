@@ -68,10 +68,10 @@ public class NavigationTabsWidget extends VisibleWidget
         new StructuredWidgetProperty.Descriptor(WidgetPropertyCategory.BEHAVIOR, "tab", "Tab");
 
     // Elements of the 'tab' structure
-    private static final WidgetPropertyDescriptor<WidgetColor> propUnitSelectedColor =
+    private static final WidgetPropertyDescriptor<WidgetColor> propIndividualSelectedColor =
             CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "selected_color", "Selected Color");
 
-    private static final WidgetPropertyDescriptor<WidgetColor> propUnitDeselectedColor =
+    private static final WidgetPropertyDescriptor<WidgetColor> propIndividualDeselectedColor =
             CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "deselected_color", "Deselected Color");
 
     /** Structure for one tab item and its embedded display */
@@ -87,8 +87,8 @@ public class NavigationTabsWidget extends VisibleWidget
                                 propFile.createProperty(widget, ""),
                                 propMacros.createProperty(widget, new Macros()),
                                 propGroupName.createProperty(widget, ""),
-                                propUnitSelectedColor.createProperty(widget,DEFAULT_SELECT_COLOR),
-                                propUnitDeselectedColor.createProperty(widget,DEFAULT_DESELECT_COLOR)
+                                propIndividualSelectedColor.createProperty(widget,DEFAULT_SELECT_COLOR),
+                                propIndividualDeselectedColor.createProperty(widget,DEFAULT_DESELECT_COLOR)
                                ));
         }
         /** @return Tab name */
@@ -100,9 +100,9 @@ public class NavigationTabsWidget extends VisibleWidget
         /** @return Optional sub-group of file */
         public WidgetProperty<String>       group()   { return getElement(3); }
         /** @return Tab color when selected */
-        public WidgetProperty<WidgetColor>  unit_selected_color()   { return getElement(4); }
+        public WidgetProperty<WidgetColor>  individual_selected_color()   { return getElement(4); }
         /** @return Tab color when not selected */
-        public WidgetProperty<WidgetColor>  unit_deselected_color()   { return getElement(5); } 
+        public WidgetProperty<WidgetColor>  individual_deselected_color()   { return getElement(5); } 
         
     }
 

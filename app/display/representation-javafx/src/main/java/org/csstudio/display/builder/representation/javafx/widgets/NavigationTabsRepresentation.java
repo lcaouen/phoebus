@@ -359,8 +359,8 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
             tab.file().removePropertyListener(tab_display_listener);
             tab.macros().removePropertyListener(tab_display_listener);
             tab.group().removePropertyListener(tab_display_listener);
-            tab.unit_selected_color().removePropertyListener(tabs_listener);
-            tab.unit_deselected_color().removePropertyListener(tabs_listener);
+            tab.individual_selected_color().removePropertyListener(tabs_listener);
+            tab.individual_deselected_color().removePropertyListener(tabs_listener);
         }
     }
 
@@ -368,8 +368,8 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
     {
         for (TabProperty tab : added)
         {
-            tab.unit_selected_color().addUntypedPropertyListener(tabs_listener);
-            tab.unit_deselected_color().addUntypedPropertyListener(tabs_listener);
+            tab.individual_selected_color().addUntypedPropertyListener(tabs_listener);
+            tab.individual_deselected_color().addUntypedPropertyListener(tabs_listener);
             tab.group().addUntypedPropertyListener(tab_display_listener);
             tab.macros().addUntypedPropertyListener(tab_display_listener);
             tab.file().addUntypedPropertyListener(tab_display_listener);
@@ -408,16 +408,16 @@ public class NavigationTabsRepresentation extends RegionBaseRepresentation<Navig
             //WidgetColor deselectColor = null;
             tabList.forEach(tab -> {
                 tabs.add(tab.name().getValue());
-                tabs_selected_colors.add(tab.unit_selected_color().getValue());
-                tabs_deselected_colors.add(tab.unit_deselected_color().getValue());
+                tabs_selected_colors.add(tab.individual_selected_color().getValue());
+                tabs_deselected_colors.add(tab.individual_deselected_color().getValue());
             }
             );
             /*
             for(TabProperty tabProp : tabList) {
             	tabs.add(tabProp.name().getValue());
-            	selectColor = tabProp.unit_selected_color().getValue();
+            	selectColor = tabProp.individual_selected_color().getValue();
             	tabs_selected_colors.add(selectColor);
-            	deselectColor = tabProp.unit_deselected_color().getValue();
+            	deselectColor = tabProp.individual_deselected_color().getValue();
             	tabs_deselected_colors.add(deselectColor);
             	
             }
