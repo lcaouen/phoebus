@@ -73,13 +73,13 @@ public class NavigationTabs extends BorderPane
     private final Pane body = new Pane();
 
     /** Labels for the tabs */
-    private final List<String> tabs = new CopyOnWriteArrayList<>();
+    private final List<String> tab_names = new CopyOnWriteArrayList<>();
 
     /** Selected colors for the tabs */
-    private final List<WidgetColor> tabs_selected_colors = new CopyOnWriteArrayList<>();
+    private final List<WidgetColor> tab_selected_colors = new CopyOnWriteArrayList<>();
 
     /** Deselected colors for the tabs */
-    private final List<WidgetColor> tabs_deselected_colors = new CopyOnWriteArrayList<>();
+    private final List<WidgetColor> tab_deselected_colors = new CopyOnWriteArrayList<>();
 
     private int tab_width = 100, tab_height = 50, tab_spacing = 2;
 
@@ -131,26 +131,26 @@ public class NavigationTabs extends BorderPane
     }
 
     /** @param tabs Tab labels */
-    public void setTabs(final List<String> tabs)
+    public void setTabNames(final List<String> tab_names)
     {
-        this.tabs.clear();
-        this.tabs.addAll(tabs);
+        this.tab_names.clear();
+        this.tab_names.addAll(tab_names);
         updateTabs();
     }
 
     /** @param tabs Selected colors */
-    public void setTabsSelectedColor(final List<WidgetColor> tabs_selected_colors)
+    public void setTabSelectedColors(final List<WidgetColor> tab_selected_colors)
     {
-        this.tabs_selected_colors.clear();
-        this.tabs_selected_colors.addAll(tabs_selected_colors);
+        this.tab_selected_colors.clear();
+        this.tab_selected_colors.addAll(tab_selected_colors);
         updateTabs();
     }
 
     /** @param tabs Deselected colors */
-    public void setTabsDeselectedColor(final List<WidgetColor> tabs_deselected_colors)
+    public void setTabDeselectedColors(final List<WidgetColor> tab_deselected_colors)
     {
-        this.tabs_deselected_colors.clear();
-        this.tabs_deselected_colors.addAll(tabs_deselected_colors);
+        this.tab_deselected_colors.clear();
+        this.tab_deselected_colors.addAll(tab_deselected_colors);
         updateTabs();
     }
         
@@ -272,12 +272,12 @@ public class NavigationTabs extends BorderPane
 
         // Create button for each tab
         Color tmpColor = deselected;
-        WidgetColor tmpWidgetColor= null;
+        WidgetColor tmpWidgetColor = null;
         
-		for (int i = 0; i < tabs.size(); ++i) {
+		for (int i = 0; i < tab_names.size(); ++i) {
 			tmpColor = deselected;
 			
-			final ToggleButton button = new ToggleButton(tabs.get(i));
+			final ToggleButton button = new ToggleButton(tab_names.get(i));
 			// Buttons without text vanish, creating a gap in the tab lineup.
 			if (button.getText().isEmpty())
 				button.setVisible(false);
@@ -287,12 +287,12 @@ public class NavigationTabs extends BorderPane
 			if (getSelectedTab() == i) {
 				button.setSelected(true);
 				tmpColor = selected;
-				if (i < tabs_selected_colors.size()) {
-					tmpWidgetColor = tabs_selected_colors.get(i);
+				if (i < tab_selected_colors.size()) {
+					tmpWidgetColor = tab_selected_colors.get(i);
 					tmpColor = JFXUtil.convert(tmpWidgetColor);
 				}
-			} else if (i < tabs_deselected_colors.size()) {
-				tmpWidgetColor = tabs_deselected_colors.get(i);
+			} else if (i < tab_deselected_colors.size()) {
+				tmpWidgetColor = tab_deselected_colors.get(i);
 				tmpColor = JFXUtil.convert(tmpWidgetColor);
 			}
             
@@ -333,8 +333,8 @@ public class NavigationTabs extends BorderPane
                     pressed.setSelected(true);
                 }
                 // Highlight active tab by setting it to the 'selected' color
-                if(i < tabs_selected_colors.size()) {
-                	tmpWidgetColor = tabs_selected_colors.get(i);
+                if(i < tab_selected_colors.size()) {
+                	tmpWidgetColor = tab_selected_colors.get(i);
                 	tmpSelectedColor = JFXUtil.convert(tmpWidgetColor);
                 }
                 pressed.setStyle("-fx-color: " + JFXUtil.webRGB(tmpSelectedColor));
@@ -344,8 +344,8 @@ public class NavigationTabs extends BorderPane
             {
                 // Radio-button behavior: De-select other tabs
                 button.setSelected(false);
-                if(i < tabs_deselected_colors.size()) {
-                	tmpWidgetColor = tabs_deselected_colors.get(i);
+                if(i < tab_deselected_colors.size()) {
+                	tmpWidgetColor = tab_deselected_colors.get(i);
                 	tmpDeselectedColor = JFXUtil.convert(tmpWidgetColor);
                 }
                 button.setStyle("-fx-color: " + JFXUtil.webRGB(tmpDeselectedColor));
