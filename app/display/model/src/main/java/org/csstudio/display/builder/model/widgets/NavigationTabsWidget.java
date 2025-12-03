@@ -8,6 +8,7 @@
 package org.csstudio.display.builder.model.widgets;
 
 import static org.csstudio.display.builder.model.ModelPlugin.logger;
+import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.newBooleanPropertyDescriptor;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propDirection;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFile;
 import static org.csstudio.display.builder.model.properties.CommonWidgetProperties.propFont;
@@ -26,6 +27,7 @@ import java.util.logging.Level;
 import org.csstudio.display.builder.model.ArrayWidgetProperty;
 import org.csstudio.display.builder.model.DisplayModel;
 import org.csstudio.display.builder.model.MacroizedWidgetProperty;
+import org.csstudio.display.builder.model.Messages;
 import org.csstudio.display.builder.model.StructuredWidgetProperty;
 import org.csstudio.display.builder.model.Widget;
 import org.csstudio.display.builder.model.WidgetCategory;
@@ -87,8 +89,8 @@ public class NavigationTabsWidget extends VisibleWidget
                                 propFile.createProperty(widget, ""),
                                 propMacros.createProperty(widget, new Macros()),
                                 propGroupName.createProperty(widget, ""),
-                                propIndividualSelectedColor.createProperty(widget,DEFAULT_SELECT_COLOR),
-                                propIndividualDeselectedColor.createProperty(widget,DEFAULT_DESELECT_COLOR)
+                                propIndividualSelectedColor.createProperty(widget, DEFAULT_SELECT_COLOR),
+                                propIndividualDeselectedColor.createProperty(widget, DEFAULT_DESELECT_COLOR)
                                ));
         }
         /** @return Tab name */
@@ -117,15 +119,18 @@ public class NavigationTabsWidget extends VisibleWidget
     private static final WidgetPropertyDescriptor<Integer> propTabSpacing =
         CommonWidgetProperties.newIntegerPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "tab_spacing", "Tab Spacing");
 
+    private static final WidgetPropertyDescriptor<Boolean> propEnablePerTabColors =
+            CommonWidgetProperties.newBooleanPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "enable_per_tab_colors", "Per Tab Colors");
+
     private static final WidgetPropertyDescriptor<WidgetColor> propDeselectedColor =
-            CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "deselected_color", "Deselected Color");
-
-
+        CommonWidgetProperties.newColorPropertyDescriptor(WidgetPropertyCategory.DISPLAY, "deselected_color", "Deselected Color");
+    
     private volatile ArrayWidgetProperty<TabProperty> tabs;
     private volatile WidgetProperty<Direction> direction;
     private volatile WidgetProperty<Integer> tab_width;
     private volatile WidgetProperty<Integer> tab_height;
     private volatile WidgetProperty<Integer> tab_spacing;
+    private volatile WidgetProperty<Boolean> enable_per_tab_colors;
     private volatile WidgetProperty<WidgetColor> selected_color;
     private volatile WidgetProperty<WidgetColor> deselected_color;
     private volatile WidgetProperty<WidgetFont> font;
@@ -150,6 +155,7 @@ public class NavigationTabsWidget extends VisibleWidget
         properties.add(tab_width = propTabWidth.createProperty(this, ActionButtonWidget.DEFAULT_WIDTH));
         properties.add(tab_height = propTabHeight.createProperty(this, ActionButtonWidget.DEFAULT_HEIGHT));
         properties.add(tab_spacing = propTabSpacing.createProperty(this, 2));
+        properties.add(enable_per_tab_colors = propEnablePerTabColors.createProperty(this, false));
         properties.add(selected_color = propSelectedColor.createProperty(this, DEFAULT_SELECT_COLOR));
         properties.add(deselected_color = propDeselectedColor.createProperty(this, DEFAULT_DESELECT_COLOR));
         properties.add(font = propFont.createProperty(this, WidgetFontService.get(NamedWidgetFonts.DEFAULT)));
@@ -185,6 +191,12 @@ public class NavigationTabsWidget extends VisibleWidget
     public WidgetProperty<Integer> propTabSpacing()
     {
         return tab_spacing;
+    }
+
+    /** @return 'enable_per_tab_colors' property */
+    public WidgetProperty<Boolean> propEnablePerTabColors()
+    {
+        return enable_per_tab_colors;
     }
 
     /** @return 'selected_color' property */
