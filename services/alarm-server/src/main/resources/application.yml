@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: phoebus-alarm-server
+  main:
+    web-application-type: none
+  lifecycle:
+    timeout-per-shutdown-phase: 40s
+
+alarm:
+  server:
+    kafka-server: ${ALARM_KAFKA_SERVER:localhost:9092}
+    config: ${ALARM_CONFIG:Accelerator}
+    kafka-properties: ${ALARM_KAFKA_PROPERTIES:}
+    shell-enabled: ${ALARM_SHELL_ENABLED:false}
+    connection-secs: 10
+    stable-secs: 4

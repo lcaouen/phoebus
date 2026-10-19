@@ -7,9 +7,37 @@
   <modelVersion>4.0.0</modelVersion>
   <artifactId>service-alarm-server</artifactId>
   <name>${project.groupId}:${project.artifactId}</name>
+    <properties>
+            <spring-boot.version>3.5.16</spring-boot.version>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
   <dependencies>
-
-    <dependency>
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter</artifactId>
+          <exclusions>
+              <exclusion>
+                  <groupId>org.springframework.boot</groupId>
+                  <artifactId>spring-boot-starter-logging</artifactId>
+              </exclusion>
+          </exclusions>
+      </dependency>
+      <dependency>
+          <groupId>org.springframework.boot</groupId>
+          <artifactId>spring-boot-starter</artifactId>
+          <version>3.2.3</version>
+      </dependency>
+      <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
       <version>${junit.version}</version>
@@ -118,7 +146,8 @@
             <manifest>
               <addClasspath>true</addClasspath>
               <classpathPrefix>lib</classpathPrefix>
-              <mainClass>org.phoebus.applications.alarm.server.AlarmServerMain</mainClass>
+                <!-- <mainClass>org.phoebus.applications.alarm.server.AlarmServerMain</mainClass>-->
+              <mainClass>org.phoebus.applications.alarm.server.AlarmServerApplication</mainClass>
             </manifest>
           </archive>
         </configuration>
